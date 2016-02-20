@@ -6,7 +6,7 @@
 ;; load init files
 (add-to-list 'load-path "~/.emacs.d/init")
 
-(load "key-bindings")
+(load "init-key-bindings")
 
 (require 'cl)
 
