@@ -7,6 +7,7 @@
 (add-to-list 'load-path "~/.emacs.d/init")
 
 (load "init-key-bindings")
+(load "init-org-mode")
 
 (require 'cl)
 
@@ -14,6 +15,7 @@
 			 ("marmalade" . "https://marmalade-repo.org/packages/")
 			 ("melpa" . "https://melpa.org/packages/")))
 
+;; (setq package-archive-enable-alist '(("melpa" deft magit)))
 
 (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/home/james/.cabal/bin:/usr/local/share/npm/bin" (getenv "PATH")))
 
@@ -26,6 +28,7 @@
 			   ghc
 			   haskell-mode
 			   ido
+			   magit
 			   markdown-mode
 			   marmalade
 			   org
@@ -271,19 +274,6 @@
   
 ;; (global-set-key [(control return)] 'insert-before-line)
 
-;; org-mode settings
-
-;; add INPROGRESS tag
-
-(setq org-log-done t
-      org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
-      org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
-
-(global-set-key (kbd "C-c a") 'org-agenda)
-
-(setq org-agenda-show-log t)
-
-(setq org-agend-files (list "~/journal/agenda.org"))
 
 
 ;; deft settings
