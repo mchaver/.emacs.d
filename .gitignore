@@ -1,0 +1,43 @@
+# -*- mode: gitignore; -*-
+
+# files
+
+*~
+*.elc
+*.rel
+*_archive
+*_flymake.*
+*cache
+*dat
+*elc
+.\#*
+.emacs.desktop
+.emacs.desktop.lock
+.ido.last
+.org-id-locations
+.smex-items
+\#*\#
+annotations
+auto-save-list
+flycheck_*.el
+history
+ido.last
+org-clock-save.el
+recentf
+session.*
+tramp
+
+
+# folders
+
+.cask/
+auto/
+autopair/
+backup/
+elpa/
+eshell/
+server/
+url/
+var/
+
+
