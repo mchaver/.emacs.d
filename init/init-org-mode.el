@@ -17,3 +17,4 @@
 
 (setq org-agend-files (list "~/journal/agenda.org"))
 
+(setq org-startup-truncated nil)
