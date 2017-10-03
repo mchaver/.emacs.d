@@ -7,7 +7,6 @@
 (add-to-list 'load-path "~/.emacs.d/init")
 
 (load "init-key-bindings")
-(load "init-org-mode")
 
 (require 'cl)
 
@@ -17,20 +16,19 @@
 
 ;; (setq package-archive-enable-alist '(("melpa" deft magit)))
 
-(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/home/james/.cabal/bin:/usr/local/share/npm/bin" (getenv "PATH")))
+(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin" (getenv "PATH")))
 
 (defvar mchaver/packages '(ac-slime
 			   auto-complete
 			   autopair
-                           company-ghc
 			   deft
 			   flycheck
 			   ghc
-			   haskell-mode
 			   ido
 			   magit
 			   markdown-mode
 			   marmalade
+			   neotree
 			   org
 			   smex
 			   yaml-mode
@@ -50,6 +48,9 @@
 
 (setq user-full-name "James M.C. Haver II")
 (setq user-mail-address "mchaver@gmail.com")
+
+;; neotree
+(global-set-key [f8] 'neotree-toggle)
 
 ;; Disable the splash screen
 (setq inhibit-splash-screen t
@@ -116,24 +117,6 @@
 
 (set-face-attribute 'default nil :height 100)
 
-;; haskell-mode keys
-;; haskell settings expect the following haskell packages installed
-;; happy
-;; hasktags
-;; stylish-haskell
-;; ghc-mode
-;; present
-;; hlint
-;; hoogle
-;;   hoogle data
-
-;;      C-c C-h or F1 with company-ghc
-
-(require 'haskell-interactive-mode)
-(require 'haskell-process)
-(add-hook 'haskell-mode-hook 'haskell-indentation-mode)
-(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -142,74 +125,10 @@
  '(custom-safe-themes
    (quote
     ("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" default)))
- '(haskell-process-auto-import-loaded-modules t)
- '(haskell-process-log t)
- '(haskell-process-suggest-remove-import-lines t)
- '(haskell-process-type 'cabal-repl)
- '(safe-local-variable-values
+ '(package-selected-packages
    (quote
-    ((haskell-process-use-ghci . t)
-     (haskell-indent-spaces . 4))))
-;; '(company-ghc-show-info t)
+    (zenburn-theme yaml-mode smex marmalade markdown-mode magit flycheck deft autopair ac-slime)))
  )
-
-(eval-after-load 'haskell-mode
-  '(define-key haskell-mode-map [f8] 'haskell-navigate-imports))
-
-(eval-after-load 'haskell-mode
-  '(progn
-     (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
-     (define-key haskell-mode-map (kbd "C-`") 'haskell-interactive-bring)
-     (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
-     (define-key haskell-mode-map (kbd "C-c C-i") 'haskell-process-do-info)
-     (define-key haskell-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
-     (define-key haskell-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
-     (define-key haskell-mode-map (kbd "C-c c") 'haskell-process-cabal)
-     (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
-
-
-(eval-after-load 'haskell-mode
-  '(define-key haskell-mode-map (kbd "C-c C-o") 'haskell-compile))
-(eval-after-load 'haskell-cabal
-  '(define-key haskell-cabal-mode-map (kbd "C-c C-o") 'haskell-compile))
-
-;; cabal-mode
-
-(eval-after-load 'haskell-cabal
-  '(progn
-     (define-key haskell-cabal-mode-map (kbd "C-`") 'haskell-interactive-bring)
-     (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
-     (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
-     (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)))
-
-;; set cabal path
-(let ((cabal-path (expand-file-name "~/.cabal/bin")))
-  (setenv "PATH" (concat cabal-path path-separator (getenv "PATH")))
-  (add-to-list 'exec-path cabal-path))
-
-;; hasktags
-;; use hasktags (M-.) jumps to the definition of an element
-;; only works in a cabal project or haskell-mode will create a temporary one
-
-(custom-set-variables '(haskell-tags-on-save t))
-
-;; M-x haskell-mode-stylish-buffer
-;; will stylize
-
-
-;; ghc-mod
-;; M-x eval-buffer
-;; in haskell file will make both haskell-mode and ghc-mod available
-;;(require 'ghc)
-;;(autoload 'ghc-init "ghc" nil t)
-;;(autoload 'ghc-debug "ghc" nil t)
-;;(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
-
-;; company mode
-;;(require 'company)
-;;(add-hook 'haskell-mode-hook 'company-mode)
-;;(add-to-list 'company-backends 'company-ghc)
-;;(add-to-list 'company-backends 'company-ghci)
 
 ;; js-mode
 
@@ -218,8 +137,6 @@
   (setq js-indent-level 2))
 
 (add-hook 'js-mode-hook 'js-custom)
-
-
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -269,12 +186,6 @@
   (newline-and-indent))
 
 (global-set-key [(shift return)] 'smart-open-line)
-
-
-  
-;; (global-set-key [(control return)] 'insert-before-line)
-
-
 
 ;; deft settings
 
