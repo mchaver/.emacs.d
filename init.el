@@ -5,6 +5,7 @@
 
 ;; load init files
 (add-to-list 'load-path "~/.emacs.d/init")
+(add-to-list 'load-path "~/.emacs.d/init/reason-mode")
 
 (load "init-key-bindings")
 
@@ -51,6 +52,8 @@
 
 ;; neotree
 (global-set-key [f8] 'neotree-toggle)
+;; this opens the dir for current file, but I don't like this behavior
+;; (setq neo-smart-open t)
 
 ;; Disable the splash screen
 (setq inhibit-splash-screen t
@@ -194,3 +197,30 @@
 (setq deft-extension "org")
 (setq deft-text-mode 'org-mode)
 
+;; reason mode
+
+(defun shell-cmd (cmd)
+  "Returns the stdout output of a shell command or nil if the command returned
+   an error"
+  (car (ignore-errors (apply 'process-lines (split-string cmd)))))
+
+(let* ((refmt-bin (or (shell-cmd "refmt ----where")
+                      (shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
+       (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
+                       (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
+       (merlin-base-dir (shell-cmd "which ~/.opam/bin/4.02.3/") )
+  ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
+  (when merlin-bin
+    (add-to-list 'load-path (concat merlin-base-dir "share/emacs/site-lisp/"))
+    (setq merlin-command merlin-bin))
+
+  (when refmt-bin
+    (setq refmt-command refmt-bin)))
+
+(require 'reason-mode)
+(require 'merlin)
+(add-hook 'reason-mode-hook (lambda ()
+                              (add-hook 'before-save-hook 'refmt-before-save)
+                              (merlin-mode)))
+
+(setq merlin-ac-setup t)
