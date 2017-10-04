@@ -207,6 +207,11 @@
 
 (global-set-key [(control shift up)]  'move-line-up)
 (global-set-key [(control shift down)]  'move-line-down)
+(global-set-key [(control o)] 'other-window)
+
+;; show parens
+(show-paren-mode 1)
+(setq show-paren-delay 0)
 
 ;; deft settings
 
