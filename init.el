@@ -1,13 +1,37 @@
 ;; -*- mode: elisp -*-
 
+
+;; structure of an elisp function
+;; (defun function-name (arguments...)
+;;        "optional-documentation..."
+;;        (interactive argument-passing-info)     ; optional
+;;        body...)
+
+
 (require 'package)
 (package-initialize)
 
-;; load init files
-(add-to-list 'load-path "~/.emacs.d/init")
-(add-to-list 'load-path "~/.emacs.d/init/reason-mode")
 
-(load "init-key-bindings")
+;; helpful functions
+
+(defun safe-add-to-load-path (dirname)
+  "Add a dir to load path if it is readable, otherwise log to the *Message* buffer that it is not readable."
+  (if (file-accessible-directory-p dirname)
+      (add-to-list 'load-path dirname)
+    (message "Unable to read the path: %s" dirname)))
+
+(defun safe-load (filename)
+  "Load a file if it readable, otherwise log to the *Message* buffer that it is not readable."
+  (if (file-readable-p filename)
+      (load filename)
+    (message "Unable to read the file: %s" filename)))
+
+;; load init files
+(safe-add-to-load-path "~/.emacs.d/init")
+(safe-add-to-load-path "~/.emacs.d/init/reason-mode")
+
+;; (add-to-list 'load-path "~/.opam/4.02.3/share/emacs/site-lisp")
+(safe-load "/home/james/.opam/4.02.3/share/emacs/site-lisp/tuareg-site-file.el")
 
 (require 'cl)
 
@@ -49,6 +73,9 @@
 
 (setq user-full-name "James M.C. Haver II")
 (setq user-mail-address "mchaver@gmail.com")
+
+;; make C-s case insensitive
+(setq case-fold-search t)
 
 ;; neotree
 (global-set-key [f8] 'neotree-toggle)
@@ -92,6 +119,12 @@
 (ido-mode t)
 (setq ido-enable-flex-matching t
       ido-use-virtual-buffers t)
+;; use current pane for newly opened file
+(setq ido-default-file-method 'selected-window)
+;; use current pane for newly switched buffer
+(setq ido-default-buffer-method 'selected-window)
+;; stop ido from suggesting when naming new file
+(define-key (cdr ido-minor-mode-map-entry) [remap write-file] nil)
 
 ;; column number mode
 
@@ -209,6 +242,14 @@
 (global-set-key [(control shift down)]  'move-line-down)
 (global-set-key [(control o)] 'other-window)
 
+
+;; resize windows
+;; S stands for shift
+(global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "S-C-<down>") 'shrink-window)
+(global-set-key (kbd "S-C-<up>") 'enlarge-window)
+
 ;; show parens
 (show-paren-mode 1)
 (setq show-paren-delay 0)
@@ -231,10 +272,11 @@
                       (shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
        (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
                        (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
-       (merlin-base-dir (shell-cmd "which ~/.opam/bin/4.02.3/") )
+       (merlin-base-dir (shell-cmd "which ~/.opam/4.02.3/share/emacs/site-lisp")))
   ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
   (when merlin-bin
-    (add-to-list 'load-path (concat merlin-base-dir "share/emacs/site-lisp/"))
+    ;; (add-to-list 'load-path (merlin-base-dir))
+    (safe-add-to-load-path "~/.opam/4.02.3/share/emacs/site-lisp")
     (setq merlin-command merlin-bin))
 
   (when refmt-bin
