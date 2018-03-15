@@ -170,6 +170,7 @@
 
 (defun js-custom ()
   "js-mode-hook"
+  (setq-default indent-tabs-mode nil)
   (setq js-indent-level 2))
 
 (add-hook 'js-mode-hook 'js-custom)
@@ -289,3 +290,9 @@
                               (merlin-mode)))
 
 (setq merlin-ac-setup t)
+
+;; open window
+(global-set-key (kbd "C-x C-n") 'new-frame)
+
+;; toggle window
+(global-set-key (kbd "C-x TAB") 'other-frame)
