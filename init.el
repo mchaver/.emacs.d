@@ -263,34 +263,33 @@
 (setq deft-text-mode 'org-mode)
 
 ;; reason mode
-
 (when (file-accessible-directory-p "~/.opam")
   (defun shell-cmd (cmd)
     "Returns the stdout output of a shell command or nil if the command returned
    an error"
-  (car (ignore-errors (apply 'process-lines (split-string cmd)))))
+    (car (ignore-errors (apply 'process-lines (split-string cmd)))))
 
-(let* ((refmt-bin (or (shell-cmd "refmt ----where")
-                      (shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
-       (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
-                       (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
-       (merlin-base-dir (shell-cmd "which ~/.opam/4.02.3/share/emacs/site-lisp")))
-  ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
-  (when merlin-bin
-    ;; (add-to-list 'load-path (merlin-base-dir))
-    (safe-add-to-load-path "~/.opam/4.02.3/share/emacs/site-lisp")
-    (setq merlin-command merlin-bin))
+  (let* ((refmt-bin (or (shell-cmd "refmt ----where")
+			(shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
+	 (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
+			 (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
+	 (merlin-base-dir (shell-cmd "which ~/.opam/4.02.3/share/emacs/site-lisp")))
+    ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
+    (when merlin-bin
+      ;; (add-to-list 'load-path (merlin-base-dir))
+      (safe-add-to-load-path "~/.opam/4.02.3/share/emacs/site-lisp")
+      (setq merlin-command merlin-bin))
 
-  (when refmt-bin
-    (setq refmt-command refmt-bin)))
+    (when refmt-bin
+      (setq refmt-command refmt-bin)))
 
-(require 'reason-mode)
-(require 'merlin)
-(add-hook 'reason-mode-hook (lambda ()
+  (require 'reason-mode)
+  (require 'merlin)
+  (add-hook 'reason-mode-hook (lambda ()
                               (add-hook 'before-save-hook 'refmt-before-save)
                               (merlin-mode)))
 
-(setq merlin-ac-setup t)
+  (setq merlin-ac-setup t))
 
 ;; open window
 ;; (global-set-key (kbd "C-x C-n") 'new-frame)
