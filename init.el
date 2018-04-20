@@ -40,7 +40,7 @@
 
 ;; (setq package-archive-enable-alist '(("melpa" deft magit)))
 
-(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin" (getenv "PATH")))
+(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:Users/mchaver/.cargo/bin:" (getenv "PATH")))
 
 (defvar mchaver/packages '(ac-slime
 			   auto-complete
@@ -55,6 +55,7 @@
 			   neotree
 			   org
                            rjsx-mode
+			   rust-mode
 			   smex
 			   yaml-mode
 			   zenburn-theme)
@@ -262,35 +263,37 @@
 (setq deft-text-mode 'org-mode)
 
 ;; reason mode
-
 ;; reason mode is broken
 
-;; (defun shell-cmd (cmd)
-;;   "Returns the stdout output of a shell command or nil if the command returned
+;; (setq merlin-ac-setup t)
+
+;; (when (file-accessible-directory-p "~/.opam")
+;;   (defun shell-cmd (cmd)
+;;     "Returns the stdout output of a shell command or nil if the command returned
 ;;    an error"
-;;   (car (ignore-errors (apply 'process-lines (split-string cmd)))))
+;;     (car (ignore-errors (apply 'process-lines (split-string cmd)))))
 
-;; (let* ((refmt-bin (or (shell-cmd "refmt ----where")
-;;                       (shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
-;;        (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
-;;                        (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
-;;        (merlin-base-dir (shell-cmd "which ~/.opam/4.02.3/share/emacs/site-lisp")))
-;;   ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
-;;   (when merlin-bin
-;;     ;; (add-to-list 'load-path (merlin-base-dir))
-;;     (safe-add-to-load-path "~/.opam/4.02.3/share/emacs/site-lisp")
-;;     (setq merlin-command merlin-bin))
+;;   (let* ((refmt-bin (or (shell-cmd "refmt ----where")
+;; 			(shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
+;; 	 (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
+;; 			 (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
+;; 	 (merlin-base-dir (shell-cmd "which ~/.opam/4.02.3/share/emacs/site-lisp")))
+;;     ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
+;;     (when merlin-bin
+;;       ;; (add-to-list 'load-path (merlin-base-dir))
+;;       (safe-add-to-load-path "~/.opam/4.02.3/share/emacs/site-lisp")
+;;       (setq merlin-command merlin-bin))
 
-;;   (when refmt-bin
-;;     (setq refmt-command refmt-bin)))
+;;     (when refmt-bin
+;;       (setq refmt-command refmt-bin)))
 
-;; (require 'reason-mode)
-;; (require 'merlin)
-;; (add-hook 'reason-mode-hook (lambda ()
+;;   (require 'reason-mode)
+;;   (require 'merlin)
+;;   (add-hook 'reason-mode-hook (lambda ()
 ;;                               (add-hook 'before-save-hook 'refmt-before-save)
 ;;                               (merlin-mode)))
 
-;; (setq merlin-ac-setup t)
+;;   (setq merlin-ac-setup t))
 
 ;; open window
 ;; (global-set-key (kbd "C-x C-n") 'new-frame)
@@ -301,3 +304,10 @@
 ;; agda mode
 (load-file (let ((coding-system-for-read 'utf-8))
                 (shell-command-to-string "agda-mode locate")))
+
+;; org-mode settings
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
+(setq calendar-week-start-day 1)
+(setq org-agenda-files (list "~/work.org"))
