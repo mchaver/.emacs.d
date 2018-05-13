@@ -302,7 +302,7 @@
 (global-set-key (kbd "C-x TAB") 'other-frame)
 
 ;; agda mode
-(load-file (let ((coding-system-for-read 'utf-8))
+(safe-load (let ((coding-system-for-read 'utf-8))
                 (shell-command-to-string "agda-mode locate")))
 
 ;; org-mode settings
@@ -311,3 +311,12 @@
 (setq org-log-done t)
 (setq calendar-week-start-day 1)
 (setq org-agenda-files (list "~/work.org"))
+
+;; prolog
+(autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
+(autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
+(autoload 'mercury-mode "prolog" "Major mode for editing Mercury programs." t)
+(setq prolog-system 'swi)
+(setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
+                                ("\\.m$" . mercury-mode))
+                               auto-mode-alist))
