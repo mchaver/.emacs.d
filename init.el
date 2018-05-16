@@ -57,6 +57,7 @@
                            rjsx-mode
 			   rust-mode
 			   smex
+			   web-mode
 			   yaml-mode
 			   zenburn-theme)
   "Default packages")
@@ -320,3 +321,15 @@
 (setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
                                 ("\\.m$" . mercury-mode))
                                auto-mode-alist))
+
+;; web-mode
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
+(defun my-web-mode-hook ()
+  "Hooks for Web mode."
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)  
+)
+(add-hook 'web-mode-hook  'my-web-mode-hook)
