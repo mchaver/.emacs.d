@@ -28,18 +28,13 @@
 ;; load init files
 (safe-add-to-load-path "~/.emacs.d/init")
 ;; (safe-add-to-load-path "~/.emacs.d/init/reason-mode")
-
-;; (add-to-list 'load-path "~/.opam/4.02.3/share/emacs/site-lisp")
-(safe-load "/home/james/.opam/4.02.3/share/emacs/site-lisp/tuareg-site-file.el")
-;; (safe-load "~/.opam/4.02.3/share/emacs/site-lisp/tuareg-site-file.el")
+(safe-load "~/.emacs.d/init/verilog-mode.el")
 
 (require 'cl)
 
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 			 ("marmalade" . "https://marmalade-repo.org/packages/")
 			 ("melpa" . "https://melpa.org/packages/")))
-
-;; (setq package-archive-enable-alist '(("melpa" deft magit)))
 
 (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:Users/mchaver/.cargo/bin:" (getenv "PATH")))
 
@@ -55,20 +50,22 @@
                            js2-mode
                            json-mode
 			   ido
-			   magit
 			   markdown-mode
 			   marmalade
+                           mwim
 			   neotree
 			   org
                            protobuf-mode
+                           proof-general
                            rjsx-mode
 			   rust-mode
 			   smex
+			   tuareg
 			   web-mode
 			   yaml-mode
-			   zenburn-theme)
+			   zenburn-theme
+			   deferred)
   "Default packages")
-
 
 (defun mchaver/packages-installed-p ()
   (cl-every 'package-installed-p mchaver/packages))
@@ -82,6 +79,27 @@
 
 (setq user-full-name "James M.C. Haver II")
 (setq user-mail-address "mchaver@gmail.com")
+
+;; load michelson-mode and alphanet if it is available
+;; (safe-load "~/.emacs.d/init/michelson-mode.el")
+;; (if file-readable-p "~/.emacs.d/init/michelson-mode.el"
+;;   (if file-readable-p "~/alphanet.sh"
+;;     ((setq michelson-client-command "~/alphanet.sh client")
+;;      (setq michelson-alphanet t)
+;;      )
+;;     (message "Unable to read the file: ~/alphanet.net"))
+;;p  (message "Unable to read the file: ~/.emacs.d/init/michelson-mode.el"))
+
+;; depends on mwim
+(safe-load "~/.emacs.d/init/rgbds-mode.el")
+(require 'rgbds-mode)
+
+(defun safe-load (filename)
+  "Load a file if it readable, otherwise log to the *Message* buffer that it is not readable."
+  (if (file-readable-p filename)
+      (load filename)
+    (message "Unable to read the file: %s" filename)))
+
 
 ;; make C-s case insensitive
 (setq case-fold-search t)
@@ -172,7 +190,7 @@
     ("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" default)))
  '(package-selected-packages
    (quote
-    (zenburn-theme yaml-mode smex marmalade markdown-mode magit flycheck deft autopair ac-slime))))
+    (zenburn-theme yaml-mode smex marmalade markdown-mode flycheck deft autopair ac-slime))))
 
 ;; js-mode
 
@@ -318,7 +336,9 @@
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
 (setq calendar-week-start-day 1)
-(setq org-agenda-files (list "~/work.org"))
+;; (setq org-agenda-files (list "~/org/work.org"
+;; 			     "~/org/home.org"))
+
 
 ;; prolog
 (autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
@@ -420,3 +440,29 @@
             (downcase-region start (1+ start)))
         (replace-regexp "\\([A-Z]\\)" "_\\1" nil (1+ start) end)
         (downcase-region start (cdr (bounds-of-thing-at-point 'symbol)))))))
+
+;; insert current data
+(defun insert-date (prefix)
+    "Insert the current date. 
+     Without prefix-argument, use ISO format.
+     With one prefix-argument, use standard US format.
+     With two prefix arguments, write out the day and month name.
+     With three prefix arguments, use standard European format."
+    (interactive "P")
+    (let ((format (cond
+                   ((not prefix) "%Y-%m-%d")
+                   ; C-u C-c d
+                   ((equal prefix '(4))  "%m/%d/%Y")
+                   ; C-u C-u C-c d
+                   ((equal prefix '(16)) "%A, %d %B %Y")
+                   ; C-u C-u C-u C-c d
+                   ((equal prefix '(64))  "%d.%m.%Y")))
+          (system-time-locale "en_US"))
+      (insert (format-time-string format))))
+
+(global-set-key (kbd "C-c d") 'insert-date)
+
+;; use TeX
+(setq default-input-method 'TeX)
+
+(setq-default indent-tabs-mode nil)
