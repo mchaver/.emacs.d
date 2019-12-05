@@ -57,6 +57,7 @@
 			   org
                            protobuf-mode
                            proof-general
+                           reason-mode
                            rjsx-mode
 			   rust-mode
 			   smex
@@ -328,8 +329,8 @@
 (global-set-key (kbd "C-x TAB") 'other-frame)
 
 ;; agda mode
-(safe-load (let ((coding-system-for-read 'utf-8))
-                (shell-command-to-string "agda-mode locate")))
+;; (safe-load (let ((coding-system-for-read 'utf-8))
+;;                 (shell-command-to-string "agda-mode locate")))
 
 ;; org-mode settings
 (define-key global-map "\C-cl" 'org-store-link)
@@ -466,3 +467,89 @@
 (setq default-input-method 'TeX)
 
 (setq-default indent-tabs-mode nil)
+
+;; pwd for emacs buffer
+(defun show-file-name ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (kill-new (buffer-file-name))
+  (message (buffer-file-name)))
+
+;; This lets you scroll the whole document with mouse wheel(not just the current page).
+(setq doc-view-continuous t)
+
+;; Turn off the mouse
+
+;; (global-unset-key (kbd "<down-mouse-1>"))
+;; (global-unset-key (kbd "<mouse-1>"))
+;; (global-unset-key (kbd "<down-mouse-3>"))
+;; (global-unset-key (kbd "<mouse-3>"))
+
+(dolist (k '([mouse-1] [down-mouse-1] [drag-mouse-1] [double-mouse-1] [triple-mouse-1]  
+             [mouse-2] [down-mouse-2] [drag-mouse-2] [double-mouse-2] [triple-mouse-2]
+             [mouse-3] [down-mouse-3] [drag-mouse-3] [double-mouse-3] [triple-mouse-3]
+             [mouse-4] [down-mouse-4] [drag-mouse-4] [double-mouse-4] [triple-mouse-4]
+             [mouse-5] [down-mouse-5] [drag-mouse-5] [double-mouse-5] [triple-mouse-5]))
+  (global-unset-key k))
+
+;; replace C-k, delete without yank
+;; (defun test1 ()
+;;   (interactive)
+;;   (delete-region (point) (line-end-position)))
+
+;; (defun test2 ()
+;;   (interactive)
+;;   (delete-region (line-beginning-position) (line-end-position)))
+
+;; (defun test2 ()
+;;   (interactive)
+;;   (delete-region (line-beginning-position) (line-end-position)))
+
+(defun delete-word (arg)
+  "Delete characters forward until encountering the end of a word, does not push
+   text to the kill-ring."
+  (interactive "p")
+  (delete-region
+   (point)
+   (progn
+     (forward-word arg)
+     (point))))
+
+(defun backward-delete-word (arg)
+  "Delete characters backward until encountering the beginning of a word, does 
+   not push text to the kill-ring."
+  (interactive "p")
+  (delete-word (- arg)))
+
+;; (defun delete-line ()
+;;   "Delete text from current position to end of line char, does not push text 
+;;    to the kill-ring."
+;;   (interactive)
+;;   (delete-region
+;;    (point)
+;;    (progn (end-of-line 1) (point)))
+;;   (delete-char 1))
+
+(defun delete-line ()
+  "Delete text from current position to end of line char, does not push text 
+   to the kill-ring."  
+  (interactive)
+  (delete-region (point) (line-end-position)))
+
+
+(defun backward-delete-line ()
+  "Delete text between the beginning of the line to the cursor position.
+   This command does not push text to the kill-ring."
+  (interactive)
+  (let (p1 p2)
+    (setq p1 (point))
+    (beginning-of-line 1)
+    (setq p2 (point))
+    (delete-region p1 p2)))
+
+(global-set-key (kbd "C-S-k") 'backward-delete-line) ; Ctrl+Shift+k
+(global-set-key (kbd "M-k") 'delete-line)
+;; (global-unset-key (kbd "C-k"))
+;; (global-set-key (kbd "C-k") 'delete-line)
+(global-set-key (kbd "<C-backspace>") 'backward-delete-word)
+(global-set-key (kbd "C-d") 'delete-word)
