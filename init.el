@@ -549,7 +549,10 @@
 
 (global-set-key (kbd "C-S-k") 'backward-delete-line) ; Ctrl+Shift+k
 (global-set-key (kbd "M-k") 'delete-line)
-;; (global-unset-key (kbd "C-k"))
-;; (global-set-key (kbd "C-k") 'delete-line)
 (global-set-key (kbd "<C-backspace>") 'backward-delete-word)
-(global-set-key (kbd "C-d") 'delete-word)
+(global-set-key (kbd "M-d") 'delete-word)
+
+(defun kill-all-buffers ()
+  (interactive)
+  (mapcar 'kill-buffer (buffer-list))
+  (delete-other-windows))
