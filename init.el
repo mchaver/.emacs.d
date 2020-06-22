@@ -552,7 +552,31 @@
 (global-set-key (kbd "<C-backspace>") 'backward-delete-word)
 (global-set-key (kbd "M-d") 'delete-word)
 
-(defun kill-all-buffers ()
+(defun kill-other-buffers ()
+    "Kill all other buffers."
+    (interactive)
+    (mapc 'kill-buffer 
+          (delq (current-buffer) 
+                (remove-if-not 'buffer-file-name (buffer-list)))))
+;; (defun kill-all-buffers ()
+;;   (interactive)
+;;   (mapcar 'kill-buffer (buffer-list))
+;;   (delete-other-windows))
+
+(defun kill-ido-buffers ()
+  "Kill ido buffers."  
   (interactive)
-  (mapcar 'kill-buffer (buffer-list))
-  (delete-other-windows))
+  (setq ido-virtual-buffers '())
+  (setq recentf-list '()))
+
+;; (put 'erase-buffer 'disabled nil)
+;; (setq ido-use-virtual-buffers nil)
+;; M-x eval-expression RET (setq buffer-name-history '()) RET
+
+
+(add-hook 'kill-buffer-hook
+   (lambda ()
+    (setq buffer-name-history
+          (delete*
+           (buffer-name)
+           buffer-name-history :test 'string=))))
