@@ -51,6 +51,7 @@
                            json-mode
 			   ido
 			   markdown-mode
+                           markdownfmt
 			   marmalade
                            mwim
 			   neotree
@@ -580,3 +581,12 @@
           (delete*
            (buffer-name)
            buffer-name-history :test 'string=))))
+
+;; go to column
+(defun er-go-to-column (column)
+  (interactive "nColumn: ")
+  (move-to-column column t))
+
+(global-set-key (kbd "M-g M-c") #'er-go-to-column)
+
+(global-set-key (kbd "C-x C-c") nil)
