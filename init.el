@@ -9,7 +9,17 @@
 
 
 (require 'package)
+
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+			 ("melpa-stable" . "https://stable.melpa.org/packages/")
+			 ("marmalade" . "https://marmalade-repo.org/packages/")
+;;			 ("melpa" . "https://melpa.org/packages/")
+			 ))
+
 (package-initialize)
+
+;; turn off bell function
+(setq ring-bell-function 'ignore)
 
 ;; helpful functions
 
@@ -29,30 +39,23 @@
 (safe-add-to-load-path "~/.emacs.d/init")
 ;; (safe-add-to-load-path "~/.emacs.d/init/reason-mode")
 (safe-load "~/.emacs.d/init/verilog-mode.el")
+(safe-load "~/.emacs.d/init/autopair")
 
 (require 'cl)
-
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-			 ("marmalade" . "https://marmalade-repo.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")))
 
 (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:Users/mchaver/.cargo/bin:" (getenv "PATH")))
 
 (defvar mchaver/packages '(ac-slime
                            ag
 			   auto-complete
-			   autopair
 			   deft
                            exec-path-from-shell
 			   flycheck
-			   ghc
                            groovy-mode
                            js2-mode
                            json-mode
 			   ido
 			   markdown-mode
-                           markdownfmt
-			   marmalade
                            mwim
 			   neotree
 			   org
@@ -95,13 +98,6 @@
 ;; depends on mwim
 (safe-load "~/.emacs.d/init/rgbds-mode.el")
 (require 'rgbds-mode)
-
-(defun safe-load (filename)
-  "Load a file if it readable, otherwise log to the *Message* buffer that it is not readable."
-  (if (file-readable-p filename)
-      (load filename)
-    (message "Unable to read the file: %s" filename)))
-
 
 ;; make C-s case insensitive
 (setq case-fold-search t)
@@ -192,7 +188,7 @@
     ("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" default)))
  '(package-selected-packages
    (quote
-    (zenburn-theme yaml-mode smex marmalade markdown-mode flycheck deft autopair ac-slime))))
+    (zenburn-theme yaml-mode smex markdown-mode flycheck deft autopair ac-slime))))
 
 ;; js-mode
 
