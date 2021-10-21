@@ -9,7 +9,20 @@
 
 
 (require 'package)
+
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+			 ("melpa-stable" . "https://stable.melpa.org/packages/")
+			 ))
+
 (package-initialize)
+
+;; turn off bell function
+(setq ring-bell-function 'ignore)
+
+;; add line numbers
+; (global-linum-mode t)  
+(when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
 
 ;; helpful functions
 
@@ -27,40 +40,40 @@
 
 ;; load init files
 (safe-add-to-load-path "~/.emacs.d/init")
-(safe-add-to-load-path "~/.emacs.d/init/reason-mode")
-(safe-add-to-load-path "~/.emacs.d/init/tla-mode")
-;; (safe-load "~/.emacs.d/init/verilog-mode.el")
+;; (safe-add-to-load-path "~/.emacs.d/init/reason-mode")
+(safe-load "~/.emacs.d/init/verilog-mode.el")
+(safe-load "~/.emacs.d/init/autopair")
 
 (require 'cl)
-
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")))
 
 (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:Users/mchaver/.cargo/bin:" (getenv "PATH")))
 
 (defvar mchaver/packages '(ac-slime
 			   auto-complete
-			   autopair
+                           ;; blacken ;; Black formatting on save python
 			   deft
+                           ;; elpy ;; Emacs Lisp Python Environment, requires: sudo apt install elpa-elpy, https://elpy.readthedocs.io/, sudo apt install python3-jedi black autopep8 yapf
                            exec-path-from-shell
-			   flycheck
-			   ghc
+			   ;; flycheck ;; on the fly syntax checking
                            groovy-mode
                            js2-mode
                            json-mode
 			   ido
 			   markdown-mode
-			   marmalade
                            mwim
 			   neotree
 			   org
                            protobuf-mode
                            proof-general
+                           py-autopep8 ;; run autopep8 on save (python)
+                           reason-mode
                            rg
                            rjsx-mode
 			   rust-mode
 			   smex
+                           solidity-mode
 			   tuareg
+                           typescript-mode
 			   web-mode
 			   yaml-mode
 			   zenburn-theme
@@ -77,7 +90,7 @@
     (when (not (package-installed-p pkg))
       (package-install pkg))))
 
-(setq user-full-name "J.H.")
+(setq user-full-name "James M.C. Haver II")
 (setq user-mail-address "mchaver@gmail.com")
 
 ;; load michelson-mode and alphanet if it is available
@@ -90,16 +103,14 @@
 ;;     (message "Unable to read the file: ~/alphanet.net"))
 ;;p  (message "Unable to read the file: ~/.emacs.d/init/michelson-mode.el"))
 
+
+(require 'solidity-mode)
+(setq solidity-comment-style 'slash)
+(define-key solidity-mode-map (kbd "C-c C-g") 'solidity-estimate-gas-at-point)
+
 ;; depends on mwim
 (safe-load "~/.emacs.d/init/rgbds-mode.el")
 (require 'rgbds-mode)
-
-(defun safe-load (filename)
-  "Load a file if it readable, otherwise log to the *Message* buffer that it is not readable."
-  (if (file-readable-p filename)
-      (load filename)
-    (message "Unable to read the file: %s" filename)))
-
 
 ;; make C-s case insensitive
 (setq case-fold-search t)
@@ -190,7 +201,7 @@
     ("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" default)))
  '(package-selected-packages
    (quote
-    (zenburn-theme yaml-mode smex marmalade markdown-mode flycheck deft autopair ac-slime))))
+    (zenburn-theme yaml-mode smex markdown-mode deft autopair ac-slime))))
 
 ;; js-mode
 
@@ -289,37 +300,37 @@
 (setq deft-text-mode 'org-mode)
 
 ;; reason mode
+;; reason mode is broken
 
-(defun shell-cmd (cmd)
-  "Returns the stdout output of a shell command or nil if the command returned
-   an error"
-  (car (ignore-errors (apply 'process-lines (split-string cmd)))))
+;; (setq merlin-ac-setup t)
 
-(defun reason-cmd-where (cmd)
-  (let ((where (shell-cmd cmd)))
-    (if (not (string-equal "unknown flag ----where" where))
-      where)))
+;; (when (file-accessible-directory-p "~/.opam")
+;;   (defun shell-cmd (cmd)
+;;     "Returns the stdout output of a shell command or nil if the command returned
+;;    an error"
+;;     (car (ignore-errors (apply 'process-lines (split-string cmd)))))
 
-(let* ((refmt-bin (shell-cmd "which bsrefmt"))
-       (merlin-bin (or (reason-cmd-where "ocamlmerlin ----where")
-                       (shell-cmd "which ocamlmerlin")))
-       (merlin-base-dir (when merlin-bin
-                          (replace-regexp-in-string "bin/ocamlmerlin$" "" merlin-bin))))
-  ;; Add merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
-  (when merlin-bin
-    (add-to-list 'load-path (concat merlin-base-dir "share/emacs/site-lisp/"))
-    (setq merlin-command merlin-bin))
+;;   (let* ((refmt-bin (or (shell-cmd "refmt ----where")
+;; 			(shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
+;; 	 (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
+;; 			 (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
+;; 	 (merlin-base-dir (shell-cmd "which ~/.opam/4.02.3/share/emacs/site-lisp")))
+;;     ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
+;;     (when merlin-bin
+;;       ;; (add-to-list 'load-path (merlin-base-dir))
+;;       (safe-add-to-load-path "~/.opam/4.02.3/share/emacs/site-lisp")
+;;       (setq merlin-command merlin-bin))
 
-  (when refmt-bin
-    (setq refmt-command refmt-bin)))
+;;     (when refmt-bin
+;;       (setq refmt-command refmt-bin)))
 
-(require 'reason-mode)
-(require 'merlin)
-(add-hook 'reason-mode-hook (lambda ()
-                              (add-hook 'before-save-hook 'refmt-before-save)
-                              (merlin-mode)))
+;;   (require 'reason-mode)
+;;   (require 'merlin)
+;;   (add-hook 'reason-mode-hook (lambda ()
+;;                               (add-hook 'before-save-hook 'refmt-before-save)
+;;                               (merlin-mode)))
 
-(setq merlin-ac-setup t)
+;;   (setq merlin-ac-setup t))
 
 ;; open window
 ;; (global-set-key (kbd "C-x C-n") 'new-frame)
@@ -568,6 +579,7 @@
   (setq ido-virtual-buffers '())
   (setq recentf-list '()))
 
+;; (put 'erase-buffer 'disabled nil)
 ;; (setq ido-use-virtual-buffers nil)
 ;; M-x eval-expression RET (setq buffer-name-history '()) RET
 
@@ -579,11 +591,11 @@
            (buffer-name)
            buffer-name-history :test 'string=))))
 
-(set-frame-font "DejaVu Sans Mono:size=14" nil t)
+;; go to column
+(defun er-go-to-column (column)
+  (interactive "nColumn: ")
+  (move-to-column column t))
 
-;; setup rg for search
-(rg-enable-default-bindings)
+(global-set-key (kbd "M-g M-c") #'er-go-to-column)
 
-;; for emacs daemon
-;; (server-start) 
-(put 'erase-buffer 'disabled nil)
+(global-set-key (kbd "C-x C-c") nil)
