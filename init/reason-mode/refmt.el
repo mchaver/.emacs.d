@@ -36,9 +36,14 @@
 
 (require 'cl-lib)
 
+(defvar-local refmt-opam-bin-dir nil)
+
 (defcustom refmt-command "refmt"
   "The 'refmt' command."
-  :type 'string
+  :type '(choice (file :tag "Filename (default binary is \"refmt\")")
+                 (const :tag "Use current opam switch" opam)
+                 (const :tag "Use current npm version (via npx)" npm)
+                 (const :tag "Use current esy version (via esy exec-command)" esy))
   :group 're-fmt)
 
 (defcustom refmt-show-errors 'buffer
@@ -196,9 +201,33 @@ function."
                  (erase-buffer)))
            (with-current-buffer patchbuf
              (erase-buffer))
-           (if (zerop (apply 'call-process
-                             refmt-command nil (list (list :file outputfile) errorfile)
-                             nil (append width-args (list "--parse" from "--print" to bufferfile))))
+           (if (zerop (let* ((files (list (list :file outputfile) errorfile))
+                             (args (append width-args (list "--parse" from "--print" to bufferfile))))
+                        (cond ((equal refmt-command 'opam)
+                               ;; this was originally done via `opam exec' but that does not
+                               ;; work for opam 1, and added a performance hit
+                               (progn
+                                 (when (not refmt-opam-bin-dir)
+                                   (setq-local
+                                    refmt-opam-bin-dir
+                                    (with-temp-buffer
+                                      (when (eq (call-process-shell-command
+                                                 "opam config var bin" nil (current-buffer) nil) 0)
+                                        (replace-regexp-in-string "\n$" "" (buffer-string))))))
+
+                                 (apply 'call-process (concat refmt-opam-bin-dir "/refmt") nil files nil args)))
+
+                              ((equal refmt-command 'npm)
+                               (apply 'call-process
+                                      "npx" nil files nil (append '("refmt") args)))
+
+                              ((equal refmt-command 'esy)
+                               (apply 'call-process
+                                      "esy" nil files nil (append '("exec-command" "refmt") args)))
+
+                              (t
+                               (apply 'call-process
+                                      refmt-command nil files nil args)))))
                (progn
                  (call-process-region start end "diff" nil patchbuf nil "-n" "-"
                                       outputfile)
