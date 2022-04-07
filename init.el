@@ -612,3 +612,6 @@
        (progn
          (message "File path copied: %s" $fpath)
          $fpath )))))
+
+;; turn off bell sound
+(setq ring-bell-function 'ignore)
