@@ -59,13 +59,13 @@
                            mwim
 			   neotree
 			   org
-                           protobuf-mode
-                           proof-general
-                           reason-mode
+;;                         protobuf-mode
+;;                         proof-general
+;;                         reason-mode
                            rjsx-mode
 			   rust-mode
 			   smex
-			   tuareg
+;;			   tuareg
 			   web-mode
 			   yaml-mode
 			   zenburn-theme
@@ -184,11 +184,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   (quote
-    ("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" default)))
+   '("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" default))
  '(package-selected-packages
-   (quote
-    (zenburn-theme yaml-mode smex markdown-mode flycheck deft autopair ac-slime))))
+   '(zenburn-theme yaml-mode smex markdown-mode flycheck deft autopair ac-slime)))
 
 ;; js-mode
 
@@ -586,3 +584,18 @@
 (global-set-key (kbd "M-g M-c") #'er-go-to-column)
 
 (global-set-key (kbd "C-x C-c") nil)
+
+
+;; default font size
+;; on new macs, these fonts are tiny
+(set-face-attribute 'default nil :height 140)
+
+;; use mac command as meta key
+(setq mac-option-key-is-meta nil
+      mac-command-key-is-meta t
+      mac-command-modifier 'meta
+      mac-option-modifier 'none)
+
+;; mac
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
