@@ -10,10 +10,11 @@
 
 (require 'package)
 
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+(setq package-archives '(("nongnu" . "https://elpa.nongnu.org/nongnu/")
+			 ("gnu" . "http://elpa.gnu.org/packages/")
 			 ("melpa-stable" . "https://stable.melpa.org/packages/")
-			 ("marmalade" . "https://marmalade-repo.org/packages/")
-;;			 ("melpa" . "https://melpa.org/packages/")
+			 ;; ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ;; ("melpa" . "https://melpa.org/packages/")
 			 ))
 
 (package-initialize)
@@ -48,17 +49,21 @@
 (defvar mchaver/packages '(ac-slime
                            ag
 			   auto-complete
+                           deadgrep
 			   deft
                            exec-path-from-shell
 			   flycheck
                            groovy-mode
+                           helm
+			   ido                           
                            js2-mode
                            json-mode
-			   ido
 			   markdown-mode
                            mwim
 			   neotree
 			   org
+                           php-mode
+                           projectile
 ;;                         protobuf-mode
 ;;                         proof-general
 ;;                         reason-mode
@@ -348,7 +353,7 @@
 ;; web-mode
 (require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-
+(add-to-list 'auto-mode-alist '("\\.php\\'". web-mode))
 (defun my-web-mode-hook ()
   "Hooks for Web mode."
   (setq web-mode-markup-indent-offset 2)
@@ -614,3 +619,19 @@
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
+
+;; php
+;; (add-hook 'php-mode-hook 'php-enable-default-coding-style)
+;; (add-hook 'php-mode-hook 'php-enable-wordpress-coding-style)
+
+
+
+(global-set-key (kbd "M-z") 'helm-M-x)
+;; C-h m, documentation
+;; M-x hel-mode
+;; C-x C-f
+
+;; support jsx
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
+;; (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))

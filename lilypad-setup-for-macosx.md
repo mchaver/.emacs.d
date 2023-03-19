@@ -1,4 +1,4 @@
-
+https://francopasut.netlify.app/post/emacs_write_lilypond/
 
 #+TITLE: Setting up LilyPond
 
