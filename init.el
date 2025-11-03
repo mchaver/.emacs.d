@@ -7,6 +7,7 @@
 ;;        (interactive argument-passing-info)     ; optional
 ;;        body...)
 
+(setq gc-cons-threshold (* 50 1000 1000))
 
 (require 'package)
 
@@ -657,3 +658,8 @@
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
 ;; (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
+
+;; keep this at the bottom
+(add-hook 'emacs-startup-hook
+  (lambda ()
+    (setq gc-cons-threshold (* 2 1000 1000))))
