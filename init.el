@@ -13,8 +13,6 @@
 (setq package-archives '(("nongnu" . "https://elpa.nongnu.org/nongnu/")
 			 ("gnu" . "http://elpa.gnu.org/packages/")
 			 ("melpa-stable" . "https://stable.melpa.org/packages/")
-			 ;; ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ;; ("melpa" . "https://melpa.org/packages/")
 			 ))
 
 (package-initialize)
@@ -41,40 +39,45 @@
 ;; (safe-add-to-load-path "~/.emacs.d/init/reason-mode")
 (safe-load "~/.emacs.d/init/verilog-mode.el")
 (safe-load "~/.emacs.d/init/autopair")
-
-(require 'cl)
+(safe-load "~/.emacs.d/init/rgbds-mode.el")
 
 (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:Users/mchaver/.cargo/bin:" (getenv "PATH")))
 
 (defvar mchaver/packages '(ac-slime
-                           ag
-			   auto-complete
+                           ;; ag
+			                     auto-complete
                            deadgrep
-			   deft
+			                     deft
                            exec-path-from-shell
-			   flycheck
+			                     flycheck
+                           fountain-mode
                            groovy-mode
-                           helm
-			   ido                           
+                           haskell-mode
+                           ;; helm
+			                     ;; ido
                            js2-mode
                            json-mode
-			   markdown-mode
+                           lua-mode
+			                     markdown-mode
                            mwim
-			   neotree
-			   org
+			                     neotree
+                           nginx-mode
+			                     org
                            php-mode
                            projectile
-;;                         protobuf-mode
-;;                         proof-general
-;;                         reason-mode
-                           rjsx-mode
-			   rust-mode
-			   smex
-;;			   tuareg
-			   web-mode
-			   yaml-mode
-			   zenburn-theme
-			   deferred)
+                           ;; protobuf-mode
+                           ;; proof-general
+                           ;; reason-mode
+                           ;; rjsx-mode
+                           rg
+			                     rust-mode
+			                     smex
+                           ;; tuareg
+                           ;; use-package
+			                     web-mode
+			                     yaml-mode
+			                     zenburn-theme
+			                     deferred)
   "Default packages")
 
 (defun mchaver/packages-installed-p ()
@@ -86,6 +89,31 @@
   (dolist (pkg mchaver/packages)
     (when (not (package-installed-p pkg))
       (package-install pkg))))
+
+;; start use-package
+;; (eval-and-compile
+;;   (setq use-package-always-ensure t
+;;         use-package-expand-minimally t))
+
+;; straight
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+(setq package-enable-at-startup nil)
+(straight-use-package 'use-package)
+
+;; helm
+;; https://github.com/emacs-helm/helm/wiki
+(use-package helm :straight t)
 
 (setq user-full-name "James M.C. Haver II")
 (setq user-mail-address "mchaver@gmail.com")
@@ -352,18 +380,9 @@
 
 ;; web-mode
 (require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.php\\'". web-mode))
-(defun my-web-mode-hook ()
-  "Hooks for Web mode."
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-code-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)  
-)
-(add-hook 'web-mode-hook  'my-web-mode-hook)
 
 ;; gradle
-(add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode))
+;; (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode))
 
 
 ;; ;; ;; eslint
@@ -574,12 +593,12 @@
 ;; M-x eval-expression RET (setq buffer-name-history '()) RET
 
 
-(add-hook 'kill-buffer-hook
-   (lambda ()
-    (setq buffer-name-history
-          (delete*
-           (buffer-name)
-           buffer-name-history :test 'string=))))
+;; (add-hook 'kill-buffer-hook
+;;    (lambda ()
+;;     (setq buffer-name-history
+;;           (delete*
+;;            (buffer-name)
+;;            buffer-name-history :test 'string=))))
 
 ;; go to column
 (defun er-go-to-column (column)
@@ -614,17 +633,20 @@
 (add-to-list 'auto-mode-alist '("\\.lytex$" . LilyPond-mode))
 (add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
 
-(setq locale-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
+;; (setq locale-coding-system 'utf-8)
+;; (set-terminal-coding-system 'utf-8)
+;; (set-keyboard-coding-system 'utf-8)
+;; (set-selection-coding-system 'utf-8)
+;; (prefer-coding-system 'utf-8)
 
 ;; php
 ;; (add-hook 'php-mode-hook 'php-enable-default-coding-style)
 ;; (add-hook 'php-mode-hook 'php-enable-wordpress-coding-style)
-
-
+(setq js-indent-level 2)
+(setq-default c-basic-offset 2)
+(setq c-basic-offset 2)
+(setq-default tab-width 2)
+(setq-default c-basic-indent 2)
 
 (global-set-key (kbd "M-z") 'helm-M-x)
 ;; C-h m, documentation
