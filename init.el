@@ -95,7 +95,7 @@
 
 (use-package neotree
   :straight t
-  :bind ([f8] . neotree-toggle))
+  :bind ("M-0" . neotree-toggle))
 
 ;; Editing
 (use-package mwim :straight t)
@@ -235,6 +235,20 @@
 
 ;; custom key settings
 
+;; Scroll by 5 lines
+(defun scroll-down-5 ()
+  "Scroll down 5 lines."
+  (interactive)
+  (forward-line 5))
+
+(defun scroll-up-5 ()
+  "Scroll up 5 lines."
+  (interactive)
+  (forward-line -5))
+
+(global-set-key (kbd "C-,") 'scroll-down-5)
+(global-set-key (kbd "C-.") 'scroll-up-5)
+
 (defun insert-line-above ()
   "Insert an empty line above the current line. Position the cursor at it's beginning."
   (interactive)
@@ -317,13 +331,13 @@
 
 
 ;; prolog
-(autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
-(autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
-(autoload 'mercury-mode "prolog" "Major mode for editing Mercury programs." t)
-(setq prolog-system 'swi)
-(setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
-                                ("\\.m$" . mercury-mode))
-                               auto-mode-alist))
+;; (autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
+;; (autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
+;; (autoload 'mercury-mode "prolog" "Major mode for editing Mercury programs." t)
+;; (setq prolog-system 'swi)
+;; (setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
+;;                                 ("\\.m$" . mercury-mode))
+;;                                auto-mode-alist))
 
 ;; gradle
 ;; (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode))

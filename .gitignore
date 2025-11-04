@@ -37,6 +37,8 @@ backup/
 elpa/
 eshell/
 server/
+straight/
+transient/
 url/
 var/
 
