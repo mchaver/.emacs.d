@@ -83,7 +83,9 @@
   (define-key helm-find-files-map (kbd "<C-backspace>") 'helm-find-files-up-one-level)
   (define-key helm-find-files-map (kbd "C-DEL") 'helm-find-files-up-one-level)
   :bind (("M-x" . helm-M-x)
-         ("C-x C-f" . helm-find-files)
+         ;; Use ido for file finding if you prefer traditional TAB completion
+         ("C-x C-f" . ido-find-file)
+         ;; ("C-x C-f" . helm-find-files)
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
          :map helm-map
