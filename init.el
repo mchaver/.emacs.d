@@ -101,6 +101,10 @@
 (use-package mwim :straight t)
 (use-package auto-complete :straight t)
 (use-package flycheck :straight t)
+(use-package goto-chg
+  :straight t
+  :bind (("C-x C-/" . goto-last-change)
+         ("C-x C-?" . goto-last-change-reverse)))
 
 ;; Search
 (use-package deadgrep :straight t)
