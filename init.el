@@ -55,6 +55,15 @@
   (load bootstrap-file nil 'nomessage))
 (straight-use-package 'use-package)
 
+;; Mac visual tweaks
+(setq ns-use-srgb-colorspace nil)
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
+(use-package menu-bar
+  :config
+  (menu-bar-mode +1))
+
+
 ;; Package declarations
 ;; Theme
 (use-package zenburn-theme
