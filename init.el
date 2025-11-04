@@ -1,6 +1,5 @@
 ;; -*- mode: elisp -*-
 
-
 ;; structure of an elisp function
 ;; (defun function-name (arguments...)
 ;;        "optional-documentation..."
@@ -9,14 +8,12 @@
 
 (setq gc-cons-threshold (* 50 1000 1000))
 
+;; Enable package.el for some packages that don't work with straight.el
 (require 'package)
-
-(setq package-archives '(("nongnu" . "https://elpa.nongnu.org/nongnu/")
-			 ("gnu" . "http://elpa.gnu.org/packages/")
-			 ("melpa-stable" . "https://stable.melpa.org/packages/")
-			 ))
-
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+(setq package-enable-at-startup nil)
 
 ;; turn off bell function
 (setq ring-bell-function 'ignore)
@@ -37,64 +34,11 @@
 
 ;; load init files
 (safe-add-to-load-path "~/.emacs.d/init")
-;; (safe-add-to-load-path "~/.emacs.d/init/reason-mode")
 (safe-load "~/.emacs.d/init/verilog-mode.el")
 (safe-load "~/.emacs.d/init/autopair")
 (safe-load "~/.emacs.d/init/rgbds-mode.el")
 
-(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:Users/mchaver/.cargo/bin:" (getenv "PATH")))
-
-(defvar mchaver/packages '(ac-slime
-                           ;; ag
-			                     auto-complete
-                           deadgrep
-			                     deft
-                           exec-path-from-shell
-			                     flycheck
-                           fountain-mode
-                           groovy-mode
-                           haskell-mode
-                           ;; helm
-			                     ;; ido
-                           js2-mode
-                           json-mode
-                           lua-mode
-			                     markdown-mode
-                           mwim
-			                     neotree
-                           nginx-mode
-			                     org
-                           php-mode
-                           projectile
-                           ;; protobuf-mode
-                           ;; proof-general
-                           ;; reason-mode
-                           ;; rjsx-mode
-                           rg
-			                     rust-mode
-			                     smex
-                           ;; tuareg
-                           ;; use-package
-			                     web-mode
-			                     yaml-mode
-			                     zenburn-theme
-			                     deferred)
-  "Default packages")
-
-(defun mchaver/packages-installed-p ()
-  (cl-every 'package-installed-p mchaver/packages))
-
-(unless (mchaver/packages-installed-p)
-  (message "%s" "Refreshing package database...")
-  (package-refresh-contents)
-  (dolist (pkg mchaver/packages)
-    (when (not (package-installed-p pkg))
-      (package-install pkg))))
-
-;; start use-package
-;; (eval-and-compile
-;;   (setq use-package-always-ensure t
-;;         use-package-expand-minimally t))
+(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:/Users/mchaver/.cargo/bin:" (getenv "PATH")))
 
 ;; straight
 (defvar bootstrap-version)
@@ -109,25 +53,111 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
-(setq package-enable-at-startup nil)
 (straight-use-package 'use-package)
 
-;; helm
-;; https://github.com/emacs-helm/helm/wiki
-(use-package helm :straight t)
+;; Package declarations
+;; Theme
+(use-package zenburn-theme
+  :straight t
+  :config
+  (load-theme 'zenburn t))
+
+;; Utilities
+(use-package exec-path-from-shell
+  :straight t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+(use-package deferred :straight t)
+
+;; Navigation and completion
+(use-package helm
+  :straight t
+  :init
+  (setq helm-mode-fuzzy-match t
+        helm-completion-in-region-fuzzy-match t
+        helm-ff-auto-update-initial-value t)
+  :config
+  (helm-mode 1)
+  (define-key helm-find-files-map (kbd "<C-backspace>") 'helm-find-files-up-one-level)
+  (define-key helm-find-files-map (kbd "C-DEL") 'helm-find-files-up-one-level)
+  :bind (("M-x" . helm-M-x)
+         ("C-x C-f" . helm-find-files)
+         ("C-x b" . helm-buffers-list)
+         ("M-y" . helm-show-kill-ring)
+         :map helm-map
+         ("<tab>" . helm-execute-persistent-action)
+         ("C-i" . helm-execute-persistent-action)
+         ("C-z" . helm-select-action)))
+
+(use-package projectile :straight t)
+
+(use-package neotree
+  :straight t
+  :bind ([f8] . neotree-toggle))
+
+;; Editing
+(use-package mwim :straight t)
+(use-package auto-complete :straight t)
+(use-package flycheck :straight t)
+
+;; Search
+(use-package deadgrep :straight t)
+(use-package rg
+  :straight nil  ;; Use package.el instead
+  :ensure t
+  :defer t
+  :commands (rg rg-dwim rg-project))
+
+;; Notes and organization
+(use-package deft
+  :straight t
+  :config
+  (setq deft-directory "~/deft"
+        deft-use-filename-as-title t
+        deft-extension "org"
+        deft-text-mode 'org-mode))
+
+;; Org-mode (use built-in version)
+(use-package org
+  :straight nil  ;; Use built-in org-mode
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda))
+  :config
+  (setq org-log-done t
+        calendar-week-start-day 1))
+
+;; Language modes
+(use-package haskell-mode :straight t)
+(use-package rust-mode :straight t)
+(use-package lua-mode :straight t)
+(use-package php-mode :straight t)
+
+(use-package js2-mode
+  :straight t
+  :mode "\\.js\\'"
+  :config
+  (setq js-indent-level 2))
+
+(use-package json-mode :straight t)
+
+(use-package yaml-mode
+  :straight t
+  :mode (("\\.yml\\'" . yaml-mode)
+         ("\\.yaml\\'" . yaml-mode)))
+
+(use-package markdown-mode :straight t)
+(use-package web-mode :straight t)
+(use-package groovy-mode :straight t)
+(use-package nginx-mode :straight t)
+(use-package fountain-mode :straight t)
+
+;; Lisp development
+(use-package ac-slime :straight t)
 
 (setq user-full-name "James M.C. Haver II")
 (setq user-mail-address "mchaver@gmail.com")
-
-;; load michelson-mode and alphanet if it is available
-;; (safe-load "~/.emacs.d/init/michelson-mode.el")
-;; (if file-readable-p "~/.emacs.d/init/michelson-mode.el"
-;;   (if file-readable-p "~/alphanet.sh"
-;;     ((setq michelson-client-command "~/alphanet.sh client")
-;;      (setq michelson-alphanet t)
-;;      )
-;;     (message "Unable to read the file: ~/alphanet.net"))
-;;p  (message "Unable to read the file: ~/.emacs.d/init/michelson-mode.el"))
 
 ;; depends on mwim
 (safe-load "~/.emacs.d/init/rgbds-mode.el")
@@ -135,11 +165,6 @@
 
 ;; make C-s case insensitive
 (setq case-fold-search t)
-
-;; neotree
-(global-set-key [f8] 'neotree-toggle)
-;; this opens the dir for current file, but I don't like this behavior
-;; (setq neo-smart-open t)
 
 ;; Disable the splash screen
 (setq inhibit-splash-screen t
@@ -166,25 +191,6 @@
 
 (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
 
-;; Smex settings
-;; provides search history for M-x
-(setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-
-;; Ido
-;; navigate the file system
-(ido-mode t)
-(setq ido-enable-flex-matching t
-      ido-use-virtual-buffers t)
-;; use current pane for newly opened file
-(setq ido-default-file-method 'selected-window)
-;; use current pane for newly switched buffer
-(setq ido-default-buffer-method 'selected-window)
-;; stop ido from suggesting when naming new file
-(define-key (cdr ido-minor-mode-map-entry) [remap write-file] nil)
-
 ;; column number mode
 
 (setq column-number-mode t)
@@ -199,18 +205,6 @@
       kept-old-versions 5   ; how many of the old versions to keep
       )
 
-;; YAML
-
-(add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
-(add-to-list 'auto-mode-alist '("\\.yaml$" . yaml-mode))
-
-;; theme
-
-(load-theme 'zenburn t)
-
-;; font size
-
-(set-face-attribute 'default nil :height 100)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -311,45 +305,6 @@
 (show-paren-mode 1)
 (setq show-paren-delay 0)
 
-;; deft settings
-
-(setq deft-directory "~/deft")
-(setq deft-use-filename-as-title t)
-(setq deft-extension "org")
-(setq deft-text-mode 'org-mode)
-
-;; reason mode
-;; reason mode is broken
-
-;; (setq merlin-ac-setup t)
-
-;; (when (file-accessible-directory-p "~/.opam")
-;;   (defun shell-cmd (cmd)
-;;     "Returns the stdout output of a shell command or nil if the command returned
-;;    an error"
-;;     (car (ignore-errors (apply 'process-lines (split-string cmd)))))
-
-;;   (let* ((refmt-bin (or (shell-cmd "refmt ----where")
-;; 			(shell-cmd "which ~/.opam/4.02.3/bin/refmt")))
-;; 	 (merlin-bin (or (shell-cmd "ocamlmerlin ----where")
-;; 			 (shell-cmd "which ~/.opam/4.02.3/bin/ocamlmerlin")))
-;; 	 (merlin-base-dir (shell-cmd "which ~/.opam/4.02.3/share/emacs/site-lisp")))
-;;     ;; Add npm merlin.el to the emacs load path and tell emacs where to find ocamlmerlin
-;;     (when merlin-bin
-;;       ;; (add-to-list 'load-path (merlin-base-dir))
-;;       (safe-add-to-load-path "~/.opam/4.02.3/share/emacs/site-lisp")
-;;       (setq merlin-command merlin-bin))
-
-;;     (when refmt-bin
-;;       (setq refmt-command refmt-bin)))
-
-;;   (require 'reason-mode)
-;;   (require 'merlin)
-;;   (add-hook 'reason-mode-hook (lambda ()
-;;                               (add-hook 'before-save-hook 'refmt-before-save)
-;;                               (merlin-mode)))
-
-;;   (setq merlin-ac-setup t))
 
 ;; open window
 ;; (global-set-key (kbd "C-x C-n") 'new-frame)
@@ -357,15 +312,6 @@
 ;; toggle window
 (global-set-key (kbd "C-x TAB") 'other-frame)
 
-;; agda mode
-;; (safe-load (let ((coding-system-for-read 'utf-8))
-;;                 (shell-command-to-string "agda-mode locate")))
-
-;; org-mode settings
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(setq org-log-done t)
-(setq calendar-week-start-day 1)
 ;; (setq org-agenda-files (list "~/org/work.org"
 ;; 			     "~/org/home.org"))
 
@@ -378,9 +324,6 @@
 (setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
                                 ("\\.m$" . mercury-mode))
                                auto-mode-alist))
-
-;; web-mode
-(require 'web-mode)
 
 ;; gradle
 ;; (add-to-list 'auto-mode-alist '("\\.gradle$" . groovy-mode))
@@ -575,31 +518,13 @@
 (defun kill-other-buffers ()
     "Kill all other buffers."
     (interactive)
-    (mapc 'kill-buffer 
-          (delq (current-buffer) 
-                (remove-if-not 'buffer-file-name (buffer-list)))))
+    (mapc 'kill-buffer
+          (delq (current-buffer)
+                (cl-remove-if-not 'buffer-file-name (buffer-list)))))
 ;; (defun kill-all-buffers ()
 ;;   (interactive)
 ;;   (mapcar 'kill-buffer (buffer-list))
 ;;   (delete-other-windows))
-
-(defun kill-ido-buffers ()
-  "Kill ido buffers."  
-  (interactive)
-  (setq ido-virtual-buffers '())
-  (setq recentf-list '()))
-
-;; (put 'erase-buffer 'disabled nil)
-;; (setq ido-use-virtual-buffers nil)
-;; M-x eval-expression RET (setq buffer-name-history '()) RET
-
-
-;; (add-hook 'kill-buffer-hook
-;;    (lambda ()
-;;     (setq buffer-name-history
-;;           (delete*
-;;            (buffer-name)
-;;            buffer-name-history :test 'string=))))
 
 ;; go to column
 (defun er-go-to-column (column)
@@ -621,9 +546,6 @@
       mac-command-modifier 'meta
       mac-option-modifier 'none)
 
-;; mac
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
 
 ;; lilypond
 ;; (require 'lilypond)
@@ -649,13 +571,9 @@
 (setq-default tab-width 2)
 (setq-default c-basic-indent 2)
 
-(global-set-key (kbd "M-z") 'helm-M-x)
 ;; C-h m, documentation
 ;; M-x hel-mode
 ;; C-x C-f
-
-;; support jsx
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
 ;; (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
 
