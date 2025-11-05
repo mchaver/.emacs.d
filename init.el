@@ -81,26 +81,21 @@
 (use-package deferred :straight t)
 
 ;; Navigation and completion
-(use-package helm
+;; Smex for M-x enhancement
+(use-package smex
   :straight t
-  :init
-  (setq helm-mode-fuzzy-match t
-        helm-completion-in-region-fuzzy-match t
-        helm-ff-auto-update-initial-value t)
   :config
-  (helm-mode 1)
-  (define-key helm-find-files-map (kbd "<C-backspace>") 'helm-find-files-up-one-level)
-  (define-key helm-find-files-map (kbd "C-DEL") 'helm-find-files-up-one-level)
-  :bind (("M-x" . helm-M-x)
-         ;; Use ido for file finding if you prefer traditional TAB completion
-         ("C-x C-f" . ido-find-file)
-         ;; ("C-x C-f" . helm-find-files)
-         ("C-x b" . helm-buffers-list)
-         ("M-y" . helm-show-kill-ring)
-         :map helm-map
-         ("<tab>" . helm-execute-persistent-action)
-         ("C-i" . helm-execute-persistent-action)
-         ("C-z" . helm-select-action)))
+  (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
+  (smex-initialize)
+  :bind (("M-x" . smex)
+         ("M-X" . smex-major-mode-commands)))
+
+;; Ido mode for buffer and file navigation
+(use-package ido
+  :config
+  (ido-mode t)
+  (setq ido-enable-flex-matching t
+        ido-use-virtual-buffers t))
 
 (use-package projectile :straight t)
 
