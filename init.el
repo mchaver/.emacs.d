@@ -222,9 +222,14 @@
 (use-package rjsx-mode
   :mode "\\.jsx\\'")
 
-;; Haskell mode
+;; Haskell mode - simple syntax highlighting
 (use-package haskell-mode
-  :mode "\\.hs\\'")
+  :mode "\\.hs\\'"
+  :config
+  ;; Basic indentation settings
+  (setq haskell-indentation-layout-offset 2
+        haskell-indentation-left-offset 2
+        haskell-indentation-starter-offset 2))
 
 ;; Rust mode
 (use-package rust-mode
