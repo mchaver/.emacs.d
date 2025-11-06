@@ -58,6 +58,7 @@
 			   rust-mode
 			   smex
 			   tuareg
+                           ;; use-package
 			   web-mode
 			   yaml-mode
 			   zenburn-theme
@@ -615,3 +616,16 @@
 
 ;; turn off bell sound
 (setq ring-bell-function 'ignore)
+
+;; display line numbers when in programming mode
+;; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+;; (global-display-line-numbers-mode)
+
+;; (eval-when-compile
+;;   ;; Following line is not needed if use-package.el is in ~/.emacs.d
+;;   ;; (add-to-list 'load-path "<path where use-package is installed>")
+;;   (require 'use-package))
+
+;; (use-package nix-mode
+;;   :mode "\\.nix\\'")
