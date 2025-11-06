@@ -105,6 +105,36 @@
       kept-new-versions 20
       kept-old-versions 5)
 
+;; Performance settings to prevent crashes with large files
+(setq read-process-output-max (* 1024 1024))  ; 1MB (default is 4KB)
+(setq process-adaptive-read-buffering nil)     ; Disable adaptive buffering
+
+;; Large file handling - disable features that slow down large files
+(defvar large-file-threshold (* 5 1024 1024)  ; 5MB threshold
+  "Size in bytes above which a file is considered large.")
+
+(defun check-large-file ()
+  "If a file is over a certain size, disable features that slow it down."
+  (when (and buffer-file-name
+             (> (buffer-size) large-file-threshold))
+    (setq buffer-read-only t)
+    (buffer-disable-undo)
+    (fundamental-mode)
+    (message "Large file detected (%s bytes). Read-only mode enabled, undo disabled, syntax highlighting off."
+             (buffer-size))))
+
+(add-hook 'find-file-hook 'check-large-file)
+
+;; Increase limits for long lines to prevent freezing
+(setq-default bidi-display-reordering nil)  ; Disable bidirectional text (helps with long lines)
+(setq bidi-inhibit-bpa t)                    ; Emacs 27+ - more bidi optimizations
+(setq-default long-line-threshold 1000)      ; Warn about lines longer than this
+(setq large-hscroll-threshold 1000)          ; Avoid slow scrolling with long lines
+
+;; Increase max lisp eval depth to prevent errors with deeply nested structures
+(setq max-lisp-eval-depth 10000)
+(setq max-specpdl-size 10000)
+
 ;; ============================================================================
 ;; Packages
 ;; ============================================================================
@@ -145,7 +175,31 @@
 
 ;; JSON mode
 (use-package json-mode
-  :mode "\\.json\\'")
+  :mode "\\.json\\'"
+  :config
+  ;; Safe JSON pretty-print that checks size first
+  (defun safe-json-pretty-print-buffer ()
+    "Pretty print JSON buffer with size check to prevent crashes."
+    (interactive)
+    (let ((size (buffer-size)))
+      (if (> size (* 512 1024))  ; 512KB threshold
+          (if (yes-or-no-p (format "Buffer is %d bytes. This may be slow or crash. Continue? " size))
+              (json-pretty-print-buffer)
+            (message "JSON pretty-print cancelled."))
+        (json-pretty-print-buffer))))
+
+  (defun safe-json-pretty-print (beg end)
+    "Pretty print JSON region with size check to prevent crashes."
+    (interactive "r")
+    (let ((size (- end beg)))
+      (if (> size (* 512 1024))  ; 512KB threshold
+          (if (yes-or-no-p (format "Region is %d bytes. This may be slow or crash. Continue? " size))
+              (json-pretty-print beg end)
+            (message "JSON pretty-print cancelled."))
+        (json-pretty-print beg end))))
+
+  :bind (:map json-mode-map
+              ("C-c C-f" . safe-json-pretty-print-buffer)))
 
 ;; Web mode for HTML
 (use-package web-mode
