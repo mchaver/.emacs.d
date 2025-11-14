@@ -113,7 +113,6 @@
          ("C-x C-?" . goto-last-change-reverse)))
 
 ;; Search
-(use-package deadgrep :straight t)
 (use-package rg
   :straight nil  ;; Use package.el instead
   :ensure t
@@ -449,6 +448,28 @@
       (insert (format-time-string format))))
 
 (global-set-key (kbd "C-c d") 'insert-date)
+
+;; randomize selected lines
+(defun randomize-lines (beg end)
+  "Randomly reorganize lines in the selected region."
+  (interactive "r")
+  (if (> beg end)
+      (let (mid) (setq mid end end beg beg mid)))
+  (save-excursion
+    ;; Get all lines in the region
+    (let ((lines (split-string
+                  (delete-and-extract-region beg end) "\n")))
+      ;; Shuffle the lines using Fisher-Yates algorithm
+      (let ((i (length lines)))
+        (while (> i 1)
+          (let ((j (random i)))
+            (setq i (1- i))
+            (let ((temp (nth i lines)))
+              (setcar (nthcdr i lines) (nth j lines))
+              (setcar (nthcdr j lines) temp)))))
+      ;; Insert the shuffled lines back
+      (goto-char beg)
+      (insert (mapconcat 'identity lines "\n")))))
 
 ;; use TeX
 (setq default-input-method 'TeX)
