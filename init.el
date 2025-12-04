@@ -569,5 +569,16 @@ If a buffer is not file and not dired, copy value of `default-directory'."
 ;; Enable erase-buffer command
 (put 'erase-buffer 'disabled nil)
 
+(defun copy-buffer-file-name ()
+  "Copy the current buffer's file name to the kill ring."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
+
 (provide 'init)
 ;;; init.el ends here
+
