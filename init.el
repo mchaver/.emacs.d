@@ -626,3 +626,7 @@
 (add-hook 'emacs-startup-hook
   (lambda ()
     (setq gc-cons-threshold (* 2 1000 1000))))
+
+(load (expand-file-name "~/.quicklisp/slime-helper.el"))
+
+(setq inferior-lisp-program "sbcl")
