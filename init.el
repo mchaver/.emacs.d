@@ -616,6 +616,12 @@
 (setq-default tab-width 2)
 (setq-default c-basic-indent 2)
 
+;; Use // comments instead of /* */ in C mode
+(add-hook 'c-mode-hook
+          (lambda ()
+            (setq comment-start "// "
+                  comment-end "")))
+
 ;; C-h m, documentation
 ;; M-x hel-mode
 ;; C-x C-f
@@ -630,3 +636,15 @@
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
 
 (setq inferior-lisp-program "sbcl")
+
+(defun load-slime ()
+  ;; Your SLIME setup code (e.g., (slime-setup '(slime-fancy ...))))
+  (slime-setup '(slime-fancy)))
+
+(load-slime)
+
+(defun slime-reload ()
+  (interactive)
+  (mapc 'load-library (reverse (remove-if-not (lambda (feature) (string-prefix-p "slime" feature)) (mapcar 'symbol-name features))))
+  (setq slime-protocol-version (slime-changelog-date))
+  (load-slime))
