@@ -54,8 +54,12 @@
 (setq user-full-name "J.H."
       user-mail-address "mchaver@gmail.com")
 
-;; Environment PATH
-(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/usr/local/share/npm/bin:Users/mchaver/.cargo/bin:" (getenv "PATH")))
+;; Inherit PATH and exec-path from the user's shell so subprocesses
+;; (eglot, language servers, linters) can find binaries installed via
+;; nvm, nix, cargo, ghcup, etc.
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize))
 
 ;; Disable splash screen
 (setq inhibit-splash-screen t
@@ -221,6 +225,20 @@
 ;; JSX mode
 (use-package rjsx-mode
   :mode "\\.jsx\\'")
+
+;; TypeScript (Emacs 29+ tree-sitter + eglot)
+(setq treesit-language-source-alist
+      '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (tsx        "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")))
+
+(add-to-list 'auto-mode-alist '("\\.ts\\'"  . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+
+(use-package eglot
+  :ensure nil
+  :hook ((typescript-ts-mode tsx-ts-mode) . eglot-ensure)
+  :config
+  (setq eglot-autoshutdown t))
 
 ;; Haskell mode - simple syntax highlighting
 (use-package haskell-mode
@@ -578,6 +596,14 @@ If a buffer is not file and not dired, copy value of `default-directory'."
     (when filename
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
+
+(defun revert-buffer-with-no-confirmation ()
+  "Revert buffer without confirmation"
+  (interactive)
+  (revert-buffer t t))
+
+;; this overrides find-alternate-file which is originally set to C-x C-v
+(global-set-key (kbd "C-x C-v") 'revert-buffer)
 
 (provide 'init)
 ;;; init.el ends here
