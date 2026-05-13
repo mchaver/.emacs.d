@@ -648,3 +648,25 @@
   (mapc 'load-library (reverse (remove-if-not (lambda (feature) (string-prefix-p "slime" feature)) (mapcar 'symbol-name features))))
   (setq slime-protocol-version (slime-changelog-date))
   (load-slime))
+
+(defun rename-file-and-buffer ()
+  "Rename the current buffer and file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (message "Buffer is not visiting a file!")
+      (let ((new-name (read-file-name "New name: " filename)))
+        (cond
+         ((vc-backend filename) (vc-rename-file filename new-name))
+         (t
+          (rename-file filename new-name t)
+          (set-visited-file-name new-name t t)))))))
+
+(global-set-key (kbd "C-c r") 'rename-file-and-buffer)
+
+(defun copy-buffer-file-path ()
+  "Copy the full file path of the current buffer to the kill ring."
+  (interactive)
+  (when buffer-file-name
+    (kill-new buffer-file-name)
+    (message "Copied: %s" buffer-file-name)))
