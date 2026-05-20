@@ -157,7 +157,23 @@
          ("\\.yaml\\'" . yaml-mode)))
 
 (use-package markdown-mode :straight t)
-(use-package web-mode :straight t)
+
+(use-package typescript-mode
+  :straight t
+  :mode ("\\.ts\\'" . typescript-mode)
+  :config
+  (setq typescript-indent-level 2))
+
+(use-package web-mode
+  :straight t
+  :mode (("\\.tsx\\'" . web-mode)
+         ("\\.jsx\\'" . web-mode))
+  :config
+  (setq web-mode-content-types-alist '(("jsx" . "\\.tsx\\'")))
+  (setq web-mode-markup-indent-offset 2
+        web-mode-css-indent-offset 2
+        web-mode-code-indent-offset 2))
+
 (use-package groovy-mode :straight t)
 (use-package nginx-mode :straight t)
 (use-package fountain-mode :straight t)
