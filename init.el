@@ -105,7 +105,12 @@
 
 ;; Editing
 (use-package mwim :straight t)
-(use-package auto-complete :straight t)
+(use-package company
+  :straight t
+  :config
+  (global-company-mode)
+  (setq company-idle-delay 0.2
+        company-minimum-prefix-length 1))
 (use-package flycheck :straight t)
 (use-package goto-chg
   :straight t
@@ -174,6 +179,21 @@
         web-mode-css-indent-offset 2
         web-mode-code-indent-offset 2))
 
+(use-package tide
+  :straight t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save))
+  :config
+  (add-hook 'web-mode-hook
+            (lambda ()
+              (when (and buffer-file-name
+                         (string-equal "tsx" (file-name-extension buffer-file-name)))
+                (tide-setup)
+                (tide-hl-identifier-mode +1)
+                (flycheck-add-mode 'typescript-tide 'web-mode)))))
+
 (use-package groovy-mode :straight t)
 (use-package nginx-mode :straight t)
 (use-package fountain-mode :straight t)
@@ -239,7 +259,7 @@
  '(custom-safe-themes
    '("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" default))
  '(package-selected-packages
-   '(zenburn-theme yaml-mode smex markdown-mode flycheck deft autopair ac-slime)))
+   '(zenburn-theme yaml-mode smex markdown-mode flycheck deft autopair ac-slime company tide)))
 
 ;; js-mode
 
