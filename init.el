@@ -18,6 +18,58 @@
 ;; turn off bell function
 (setq ring-bell-function 'ignore)
 
+;; ============================================================================
+;; Performance: large files, long lines, and subprocess output
+;; ============================================================================
+;; These settings target the two slow cases that bite most: opening big files
+;; (e.g. large JSON) and reading lots of subprocess output fast (e.g. rg).
+
+;; Subprocess throughput. The default read chunk is only 64KB and adaptive
+;; buffering throttles reads; bumping the chunk and disabling throttling makes
+;; tools like ripgrep (rg) and language servers stream output far faster.
+(setq read-process-output-max (* 4 1024 1024)) ; 4MB
+(setq process-adaptive-read-buffering nil)
+
+;; Long-line display speedups (the usual cause of "minified JSON freezes the
+;; editor"). Forcing a paragraph direction skips per-paragraph direction
+;; detection, and inhibiting the bidi paren algorithm avoids expensive
+;; scanning. Both are the officially recommended knobs for long lines.
+(setq-default bidi-paragraph-direction 'left-to-right)
+(setq bidi-inhibit-bpa t)
+(setq large-hscroll-threshold 1000)
+
+;; Deeper recursion limit so pretty-printing / parsing deeply nested data
+;; (big JSON) doesn't hit the eval-depth ceiling. (max-specpdl-size is
+;; obsolete since Emacs 29 and intentionally omitted.)
+(setq max-lisp-eval-depth 10000)
+
+;; so-long: built-in detector for files with very long lines. When a buffer
+;; trips `so-long-threshold' (10000 chars/line) it disables the heavy minor
+;; modes that make such buffers crawl. This is the modern replacement for
+;; hand-disabling bidi/font-lock and handles minified JSON automatically.
+(when (fboundp 'global-so-long-mode)
+  (global-so-long-mode 1))
+
+;; Large files (regardless of line length): drop into a lightweight state so
+;; navigation stays responsive. so-long handles long lines; this handles sheer
+;; size.
+(defvar large-file-threshold (* 10 1024 1024)
+  "Size in bytes above which a freshly opened file is treated as large.")
+
+(defun check-large-file ()
+  "If the visited file is over `large-file-threshold', disable slow features.
+Makes the buffer read-only, turns off undo recording, and switches to
+`fundamental-mode' to skip font-lock and other major-mode machinery."
+  (when (and buffer-file-name
+             (> (buffer-size) large-file-threshold))
+    (setq buffer-read-only t)
+    (buffer-disable-undo)
+    (fundamental-mode)
+    (message "Large file (%d bytes): read-only, undo off, plain mode."
+             (buffer-size))))
+
+(add-hook 'find-file-hook #'check-large-file)
+
 ;; helpful functions
 
 (defun safe-add-to-load-path (dirname)
@@ -122,7 +174,15 @@
   :straight nil  ;; Use package.el instead
   :ensure t
   :defer t
-  :commands (rg rg-dwim rg-project))
+  :commands (rg rg-dwim rg-project)
+  :config
+  ;; The usual cause of rg "freezing" on a search with many matches is a few
+  ;; very long match lines (minified JS, lockfiles, data blobs). Each becomes
+  ;; one huge line in the results buffer, which `rg-filter' has to regex-scan
+  ;; and Emacs has to render. Truncate over-long lines in ripgrep itself so
+  ;; they never reach the buffer; --max-columns-preview keeps a short preview
+  ;; plus a "[... omitted]" marker instead of dropping the match entirely.
+  (setq rg-command-line-flags '("--max-columns=300" "--max-columns-preview")))
 
 ;; Notes and organization
 (use-package deft
@@ -154,7 +214,22 @@
   :config
   (setq js-indent-level 2))
 
-(use-package json-mode :straight t)
+(use-package json-mode
+  :straight t
+  :config
+  ;; json-pretty-print can hang or crash on very large buffers. Guard it with
+  ;; a size check and let the user bail out before committing to the reflow.
+  (defun safe-json-pretty-print-buffer ()
+    "Pretty-print the JSON buffer, warning first if it is large."
+    (interactive)
+    (let ((size (buffer-size)))
+      (if (and (> size (* 512 1024))
+               (not (yes-or-no-p
+                     (format "Buffer is %d bytes; pretty-print may be slow. Continue? " size))))
+          (message "JSON pretty-print cancelled.")
+        (json-pretty-print-buffer))))
+  :bind (:map json-mode-map
+              ("C-c C-f" . safe-json-pretty-print-buffer)))
 
 (use-package yaml-mode
   :straight t
